@@ -1,5 +1,6 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>KalipheTiles</title><link rel="icon" type="image/png" href="/static/icon.png">
+<!doctype html><html lang="fr"><head>
+    <link rel="icon" type="image/png" href="/static/icon.png"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>KalipheTiles</title>
 <link href="/vendor/maplibre-gl.css" rel="stylesheet" onerror="this.onerror=null;this.href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css'">
 <script src="/vendor/maplibre-gl.js"></script>
 <script>window.maplibregl||document.write('<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"><\/script>')</script>
@@ -7,8 +8,6 @@
 <script>window.proj4||document.write('<script src="https://unpkg.com/proj4@2.12.1/dist/proj4.js"><\/script>')</script>
 <style>
 *{box-sizing:border-box}
-button{background:#202a3a;color:#f8fafc;border:1px solid #465268}button:hover{background:#344258}button:focus-visible{outline:2px solid #fca311;outline-offset:2px}
-#landing{position:fixed;inset:0;z-index:20000;background:radial-gradient(ellipse at top,#27364d,#101722 70%);color:#f8fafc;display:flex;align-items:center;justify-content:center;padding:24px}#landing .hero{max-width:760px;text-align:center}#landing img{width:130px;height:130px;object-fit:contain;border-radius:22px;margin-bottom:10px}#landing h1{font-size:clamp(30px,5vw,52px);margin:8px 0;color:#fca311}#landing p{font-size:17px;line-height:1.6;color:#e2e8f0}#landing .choices{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}#landing button{padding:12px 18px;border-radius:9px;background:#fca311;color:#111827;font-weight:700}
 body{margin:0;font:14px system-ui,sans-serif;display:flex;flex-direction:column;height:100vh}
 header{padding:8px 12px;background:#14213d;color:#fff;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 header b{font-size:16px;margin-right:6px}
@@ -70,7 +69,6 @@ body.moveon .maplibregl-marker{pointer-events:none}
 dialog{border:0;border-radius:10px;padding:18px;width:min(460px,92vw)}
 dialog input{width:100%;padding:6px;margin:4px 0 12px}dialog small{color:#555}
 body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body.dark .win{background:#1f2937;border-color:#64748b}body.dark .wh{background:#0b1324}body.dark .tabs{background:#374151}body.dark .tab small,body.dark .tab label{color:#d1d5db}body.dark #status{background:#111827;color:#e5e7eb}body.dark #gcp-table th{background:#374151;color:#fff}#gcp-table th,#gcp-table td{padding:3px;border-bottom:1px solid #aaa;text-align:center}#gcp-table input{width:100%;min-width:68px;padding:4px;border:1px solid #aaa;border-radius:4px}#t-pts h4{font-size:13px}</style></head><body>
-<div id="landing"><div class="hero"><img src="/static/icon.png" alt="Logo KalipheTiles"><h1>KalipheTiles</h1><p>Géoréférencez vos cartes, plans et images historiques. Placez vos points de contrôle, ajustez l’image, puis exportez vos données pour les utiliser dans vos outils SIG.</p><p><b>Choisissez une méthode pour commencer :</b><br>par les quatre coins, par les directions Nord–Sud–Est–Ouest, ou par des points visuels libres.</p><div class="choices"><button onclick="document.getElementById('landing').remove()">Commencer le géoréférencement</button><button onclick="document.getElementById('landing').remove();document.getElementById('addimg').click()">Ajouter plusieurs images</button></div></div></div>
 <header>
  <b>KalipheTiles</b>
  <input type="file" id="file" title="Ouvrir une nouvelle image (nouveau projet)" accept=".jpg,.jpeg,.png,.tif,.tiff,.webp">
@@ -94,7 +92,7 @@ body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body
   <div class="mbar"><button id="b-ovt" title="Masquer / afficher les outils sur la carte">☰</button>
    <label title="Afficher / masquer l'image sur la carte"><input type="checkbox" id="imgvis" checked> Image</label>
    <input type="range" id="opac" min="0" max="1" step=".05" value=".85" title="Transparence de l'image">
-   <button id="b-move" title="Déplacer tous les points ensemble (glisser sur la carte)">✋ Déplacer tous</button><button id="b-terrain" title="Activer/désactiver le relief 3D">⛰ Relief 3D</button></div>
+   <button id="b-move" title="Déplacer l'image avec tous ses points (glisser sur la carte)">✋ Déplacer</button><button id="b-terrain" title="Activer/désactiver le relief 3D">⛰ Relief 3D</button></div>
   <div class="ov">
    <div class="row"><input type="text" id="q" placeholder="Chercher un lieu (ville, adresse…)"><button id="qgo">🔍</button></div>
    <div id="res-list"></div>
@@ -113,7 +111,7 @@ body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body
   <div class="wb col">
    <div class="tabs"><button class="on" data-t="pts">Points</button><button data-t="lay">Calques</button><button data-t="img">Image</button><button data-t="loc">Localisation</button><button data-t="exp">Tuiles &amp; export</button><button data-t="cloud">Cloud</button><button data-t="dem">MNT / OpenTopography</button><button data-t="proj">Projet</button></div>
    <div class="tab on" id="t-pts">
-    <h4 style="margin:6px 8px 2px">Coordonnées des points de contrôle (EPSG:4326)</h4><label style="padding:0 8px">Méthode de placement des points</label><select id="gcp-mode" style="margin:0 8px;width:calc(100% - 16px)"><option value="corners">Par les quatre coins</option><option value="cardinal">Par Nord, Sud, Est et Ouest</option><option value="free">Points visuels libres</option></select>
+    <h4 style="margin:6px 8px 2px">Coordonnées des points de contrôle (EPSG:4326)</h4>
     <small style="margin:0 8px 6px">Saisissez les pixels X/Y de l’image et la longitude/latitude. Les valeurs géographiques initiales sont des exemples à remplacer.</small>
     <div style="overflow:auto;max-height:155px"><table id="gcp-table" style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr><th>Pt</th><th>Pixel X</th><th>Pixel Y</th><th>Longitude</th><th>Latitude</th></tr></thead><tbody>
     <tr><td>P1</td><td><input type="number" id="gpx0" min="0" step="any" value="0"></td><td><input type="number" id="gpy0" min="0" step="any" value="0"></td><td><input type="number" id="glon0" step="any" value="2.000000"></td><td><input type="number" id="glat0" step="any" value="48.000000"></td></tr>
@@ -121,13 +119,13 @@ body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body
     <tr><td>P3</td><td><input type="number" id="gpx2" min="0" step="any"></td><td><input type="number" id="gpy2" min="0" step="any"></td><td><input type="number" id="glon2" step="any" value="2.010000"></td><td><input type="number" id="glat2" step="any" value="47.990000"></td></tr>
     <tr><td>P4</td><td><input type="number" id="gpx3" min="0" step="any" value="0"></td><td><input type="number" id="gpy3" min="0" step="any"></td><td><input type="number" id="glon3" step="any" value="2.000000"></td><td><input type="number" id="glat3" step="any" value="47.990000"></td></tr>
     </tbody></table></div>
-    <div class="r" style="padding:4px 8px"><button id="b-gcp-fill">Préparer les points</button><button id="b-gcp-apply" style="background:#fca311">Appliquer les 4 points</button></div>
+    <div class="r" style="padding:4px 8px"><button id="b-gcp-fill">Remplir les coins de l’image</button><button id="b-gcp-apply" style="background:#fca311">Appliquer les 4 points</button></div>
     <div id="list"></div></div>
    <div class="tab" id="t-lay"><label class="addbtn">➕ Ajouter une image (collage)<input type="file" id="addimg" accept=".jpg,.jpeg,.png,.tif,.tiff,.webp" style="display:none"></label>
     <div id="lyr" style="margin-top:8px"></div>
-    <small>Cochez la case à gauche de chaque image pour l’afficher ou la masquer indépendamment sur la carte. Chaque image a ses propres points et sa méthode. Les images visibles et calées sont fusionnées dans un seul MBTiles / GeoTIFF / PNG (ordre : de haut en bas = du dessous au dessus avec ▲▼).</small></div>
+    <small>Chaque image a ses propres points et sa méthode. Les images visibles et calées sont fusionnées dans un seul MBTiles / GeoTIFF / PNG (ordre : de haut en bas = du dessous au dessus avec ▲▼).</small></div>
    <div class="tab" id="t-img">
-    <h4>Aperçu</h4><div class="r"><button id="b-refresh">Actualiser l’aperçu</button></div><small>Utilisez ce bouton après une modification si l’aperçu de la carte ne semble pas à jour.</small><h4>Rogner</h4><div class="r"><button id="b-crop">Sélectionner la zone</button><button id="b-cropgo">Appliquer</button></div><small id="cropinfo"></small>
+    <h4>Rogner</h4><div class="r"><button id="b-crop">Sélectionner la zone</button><button id="b-cropgo">Appliquer</button></div><small id="cropinfo"></small>
     <h4>Redresser / pivoter (image de travers)</h4><div class="r"><input type="number" id="rot" value="0" step="0.1"><button id="b-rot">Pivoter</button><button id="b-ang">Mesurer l'angle</button></div>
     <small>Positif = anti-horaire. « Mesurer » : cliquez 2 points d'une ligne qui doit être horizontale (ligne de grille, bord). Les points déjà posés suivent la rotation.</small>
     <h4>Harmoniser automatiquement les couleurs</h4><div class="r"><button id="b-harmonize">Ajuster contraste et couleurs</button></div><small>Correction douce par étirement des tons (percentiles 1–99), en conservant la transparence. Utilisez « Restaurer » pour revenir à l’original.</small><h4>Supprimer des couleurs</h4><div class="r"><button id="b-pick">Pipette</button><span style="flex:0">tolérance</span><input type="number" id="tol" value="40" min="0" max="255"></div>
@@ -153,7 +151,7 @@ body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body
     <div class="r"><b id="zl">Zoom 0 → 18</b><button id="b-auto">Auto</button></div><small id="est"></small>
     <label class="chk"><input type="checkbox" id="hd"> Tuiles 512 px (haute définition, plus net sur écrans HiDPI)</label>
     <small>Les tuiles sont créées par le bouton « Géoréférencer » (en haut) : dossier XYZ + MBTiles.</small>
-    <h4>Exporter</h4><small>En plus de l’export du collage, vous pouvez enregistrer chaque image géoréférencée séparément, en version originale et en version courante (recadrée ou améliorée).</small><label class="chk"><input type="checkbox" id="exp-current"> Image courante (recadrée / améliorée) géoréférencée pour chaque calque</label><label class="chk"><input type="checkbox" id="exp-original"> Image originale géoréférencée pour chaque calque</label>
+    <h4>Exporter</h4>
     <label>Système de sortie</label><select id="ocrs"><option value="3857">Global Mercator (EPSG:3857)</option><option value="4326">WGS84 (EPSG:4326)</option></select>
     <label>Résolution des rasters exportés</label><select id="maxpx"><option value="0">Native (pleine résolution)</option><option value="16000">16 000 px max</option><option value="8000">8 000 px max</option><option value="4000">4 000 px max</option></select>
     <div><span class="chk"><input type="checkbox" class="xk" value="geotiff" checked> GeoTIFF</span><span class="chk"><input type="checkbox" class="xk" value="geojson" checked> GeoJSON (emprise + points)</span><span class="chk"><input type="checkbox" class="xk" value="shp"> Shapefile (emprise)</span>
@@ -178,7 +176,9 @@ body.dark{background:#111827;color:#e5e7eb}body.dark #ws{background:#263238}body
     <label>Jeu de données</label><select id="ot-dem"><option value="SRTMGL1">SRTM GL1 — 30 m environ</option><option value="COP30">Copernicus GLO-30</option><option value="NASADEM">NASADEM</option><option value="AW3D30">ALOS World 3D — 30 m</option><option value="SRTMGL3">SRTM GL3 — 90 m environ</option><option value="COP90">Copernicus GLO-90</option></select>
     <label>Emprise EPSG:4326</label><div class="r"><input type="number" id="ot-west" step="any" placeholder="Ouest (lon)"><input type="number" id="ot-south" step="any" placeholder="Sud (lat)"></div>
     <div class="r"><input type="number" id="ot-east" step="any" placeholder="Est (lon)"><input type="number" id="ot-north" step="any" placeholder="Nord (lat)"></div>
-    <div class="r"><button id="ot-use-map">Utiliser l’emprise de la carte</button><button id="ot-download" style="background:#fca311">Télécharger le MNT GeoTIFF</button></div>
+    <div class="r"><label style="flex:1">Buffer (m)<input type="number" id="ot-buffer" value="0" step="10" placeholder="0 = aucun"></label></div>
+    <small>Le buffer positif agrandit l’emprise; le négatif la réduit. L’emprise automatique reprend la zone visible de la carte.</small>
+    <div class="r"><button id="ot-use-map">Reprendre l’emprise de la carte</button><button id="ot-download" style="background:#fca311">Télécharger le MNT GeoTIFF</button></div>
     <small id="ot-status"></small>
    </div>
    <div class="tab" id="t-proj">
@@ -514,7 +514,7 @@ $("#cgo").onclick=placeCoord; $("#coord").onkeydown=e=>{if(e.key=="Enter")placeC
 // ---------- Envoi / traitement ----------
 const MINP={affine:3,poly2:6,tps:4};
 // Saisie directe des GCP : pixels dans l'image native, coordonnées géographiques EPSG:4326.
-function fillGcpCorners(){if(!nat.w||!nat.h)return st("Chargez d’abord une image.");const mode=$("#gcp-mode")?.value||"corners";let xy;if(mode==="cardinal"){xy=[[nat.w/2,0],[nat.w/2,nat.h],[nat.w, nat.h/2],[0,nat.h/2]];st("Points préparés dans l’ordre Nord, Sud, Est, Ouest. Associez les coordonnées géographiques correspondantes.")}else if(mode==="free"){xy=[[nat.w*.25,nat.h*.25],[nat.w*.75,nat.h*.25],[nat.w*.75,nat.h*.75],[nat.w*.25,nat.h*.75]];st("Points libres préparés : ajustez chaque pixel ou placez les points directement sur l’image et la carte.")}else{xy=[[0,0],[nat.w,0],[nat.w,nat.h],[0,nat.h]];st("Les quatre coins de l’image sont préparés.")}xy.forEach((p,i)=>{$("#gpx"+i).value=Math.round(p[0]);$("#gpy"+i).value=Math.round(p[1])});if(mode==="cardinal"){const west=Number($("#glon0").value),east=Number($("#glon1").value),north=Number($("#glat0").value),south=Number($("#glat2").value);[[ (west+east)/2,north],[ (west+east)/2,south],[east,(north+south)/2],[west,(north+south)/2]].forEach((v,i)=>{$("#glon"+i).value=v.toFixed(6);$("#glat"+i).value=v[1].toFixed(6)})}}
+function fillGcpCorners(){if(!nat.w||!nat.h)return st("Chargez d'abord une image.");const xy=[[0,0],[nat.w,0],[nat.w,nat.h],[0,nat.h]];xy.forEach((p,i)=>{$("#gpx"+i).value=p[0];$("#gpy"+i).value=p[1]})}
 $("#b-gcp-fill").onclick=fillGcpCorners;
 $("#b-gcp-apply").onclick=()=>{
  try{
@@ -603,30 +603,8 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
 
 // ---------- Image : rogner, pivoter, couleurs ----------
 function showImage(j,keep){
- id=j.id||id;
- nat={w:Number(j.width)||0,h:Number(j.height)||0};
- // Construire l'image en DOM évite les problèmes d'URL et attend son chargement réel.
- ib.replaceChildren();
- const im=document.createElement("img");
- const url=String(j.image||"");
- im.alt="Image à géoréférencer";
- im.decoding="async";
- im.draggable=false;
- im.width=nat.w; im.height=nat.h;
- im.style.width=nat.w+"px"; im.style.height=nat.h+"px";
- im.onload=()=>{
-  // Recalculer après chargement : la fenêtre peut avoir été redimensionnée
-  // pendant la requête ou être encore en cours d'affichage.
-  if(!keep||fitPending||!isFinite(k)||k<=0)fit();
-  st(`Image chargée : ${nat.w} × ${nat.h} pixels`);
- };
- im.onerror=()=>{
-  st("⚠️ L’image ne peut pas être affichée. Vérifiez que le serveur est lancé et que le fichier source existe, puis rechargez l’image.");
-  console.error("Échec de chargement de l’image géoréférencée :",url);
- };
- im.src=url+(url.includes("?")?"&":"?")+"t="+Date.now();
- ib.append(im);
- const cr=document.createElement("div");cr.id="cr";ib.append(cr);
+ id=j.id||id;nat={w:j.width,h:j.height};
+ ib.innerHTML=`<img src="${j.image}?t=${Date.now()}" width="${j.width}" height="${j.height}"><div id="cr"></div>`;
  if(!keep)fit();
 }
 function setTool(t){
@@ -650,8 +628,6 @@ async function edit(body,keep){
 $("#b-cropgo").onclick=()=>cropBox?edit({op:"crop",box:cropBox}):st("Tracez d'abord une zone (« Sélectionner la zone »)");
 $("#b-rot").onclick=()=>{const a=parseFloat($("#rot").value);a?edit({op:"rotate",angle:a}):st("Angle nul")};
 $("#b-reset").onclick=()=>{if(id&&confirm("Restaurer l'image d'origine ? Les points seront supprimés."))edit({op:"reset"})};
-$("#b-refresh").onclick=()=>{if(cur<0)return st("Chargez d’abord une image.");const L=layers[cur];L.sig=undefined;showImage({id:L.id,width:L.w,height:L.h,image:L.image},true);schedulePreview(cur);applyVis();st("Aperçu actualisé.")};
-$("#gcp-mode").onchange=()=>fillGcpCorners();
 function renderColors(){$("#sws").innerHTML=colors.map((c,i)=>`<span class="sw" data-i="${i}" style="background:rgb(${c})" title="rgb(${c})">✕</span>`).join("")}
 $("#sws").onclick=e=>{const s=e.target.closest(".sw");if(s){colors.splice(+s.dataset.i,1);renderColors()}};
 function pickColor(px,py){
@@ -742,13 +718,22 @@ $("#b-exp").onclick=async()=>{
  if(!spec.length){el.textContent="Posez d'abord 3 points sur une image visible";return}
  if(!kinds.length){el.textContent="Choisissez au moins un format";return}
  el.textContent="Export en cours… (les grandes images peuvent prendre du temps)";
- const r=await fetch(`/api/maps/${spec[0].id}/export`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({layers:spec,kinds,crs:$("#ocrs").value,max_px:+$("#maxpx").value,individual_current:$("#exp-current").checked,individual_original:$("#exp-original").checked})});
+ const r=await fetch(`/api/maps/${spec[0].id}/export`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({layers:spec,kinds,crs:$("#ocrs").value,max_px:+$("#maxpx").value})});
  const j=await r.json();el.textContent=r.ok?"✅ "+j.files.join(" · "):"⚠️ "+j.detail;
 };
 $("#b-open").onclick=()=>{const s=layersSpec();s.length&&fetch(`/api/maps/${s[0].id}/open`,{method:"POST"})};
 
 // OpenTopography Global DEM : le serveur relaie la requête et renvoie un GeoTIFF.
-$("#ot-use-map").onclick=()=>{const b=map.getBounds();$("#ot-west").value=b.getWest().toFixed(6);$("#ot-south").value=b.getSouth().toFixed(6);$("#ot-east").value=b.getEast().toFixed(6);$("#ot-north").value=b.getNorth().toFixed(6)};
+$("#ot-use-map").onclick=()=>{
+ const b=map.getBounds(), buffer=Number($("#ot-buffer").value||0);
+ const lat=(b.getNorth()+b.getSouth())/2;
+ // Approximations locales en degrés pour appliquer une marge en mètres.
+ const dLat=buffer/111320, dLon=buffer/(111320*Math.max(0.01,Math.cos(lat*Math.PI/180)));
+ const west=b.getWest()-dLon, east=b.getEast()+dLon, south=b.getSouth()-dLat, north=b.getNorth()+dLat;
+ if(south>=north || west>=east){$("#ot-status").textContent="⚠️ Le buffer négatif réduit l’emprise à une zone invalide.";return}
+ $("#ot-west").value=west.toFixed(6);$("#ot-south").value=south.toFixed(6);$("#ot-east").value=east.toFixed(6);$("#ot-north").value=north.toFixed(6);
+ $("#ot-status").textContent="Emprise reprise de la carte avec un buffer de "+buffer+" m.";
+};
 $("#ot-download").onclick=async()=>{try{const key=$("#ot-key").value.trim();if(!key)throw new Error("Saisissez votre clé API OpenTopography.");const body={api_key:key,demtype:$("#ot-dem").value,west:Number($("#ot-west").value),south:Number($("#ot-south").value),east:Number($("#ot-east").value),north:Number($("#ot-north").value)};if(Object.values(body).some(v=>v===null||v===undefined||v===""||(typeof v==="number"&&!Number.isFinite(v))))throw new Error("Renseignez les quatre limites de l’emprise.");$("#ot-status").textContent="Téléchargement auprès d’OpenTopography…";const r=await fetch("/api/opentopography",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok){let msg="Erreur du service";try{msg=(await r.json()).detail||msg}catch(e){}throw new Error(msg)}const blob=await r.blob();const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="opentopography_dem.tif";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);$("#ot-status").textContent="MNT GeoTIFF téléchargé. L’emprise demandée est celle saisie ci-dessus."}catch(e){$("#ot-status").textContent="⚠️ "+(e.message||e)}};
 
 // ---------- Cloud (S3 / R2 / Scaleway / MinIO) ----------
@@ -807,7 +792,7 @@ function selectLayer(i){
  $("#w-img .wh span").textContent="🖼 "+L.name;redraw();renderLayers();
 }
 function renderLayers(){
- $("#lyr").innerHTML=layers.map((l,i)=>`<div class="ly${i==cur?" sel":""}" data-i="${i}"><input type="checkbox" class="lv" ${l.vis?"checked":""} title="Afficher/masquer cette image sur la carte et l’inclure dans le collage"><b>${i+1}</b><span class="ln">${l.name}</span><i>${l.gcps.length} pt</i><a data-a="up" title="Descendre sous">▲</a><a data-a="dn" title="Monter dessus">▼</a><a data-a="del" title="Retirer">✕</a></div>`).join("")||"<small>Aucune image</small>";
+ $("#lyr").innerHTML=layers.map((l,i)=>`<div class="ly${i==cur?" sel":""}" data-i="${i}"><input type="checkbox" class="lv" ${l.vis?"checked":""} title="Inclure dans le collage"><b>${i+1}</b><span class="ln">${l.name}</span><i>${l.gcps.length} pt</i><a data-a="up" title="Descendre sous">▲</a><a data-a="dn" title="Monter dessus">▼</a><a data-a="del" title="Retirer">✕</a></div>`).join("")||"<small>Aucune image</small>";
 }
 $("#lyr").onclick=e=>{
  const row=e.target.closest(".ly");if(!row)return;const i=+row.dataset.i,a=e.target.dataset.a;
